@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>COPD Pharmacist Education Slider</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --text-main: #1d1d1f;
+      --text-sub: #6e6e73;
+      --accent-blue: #0071e3;
+      --accent-green: #22c55e;
+      --radius-large: 26px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    /* ---------- HEADER ---------- */
+
+    .store-header {
+      padding: 32px 8vw 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .store-logo {
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 700;
+      background: linear-gradient(90deg, #0071e3, #34c759);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .store-right {
+      text-align: right;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .store-right p:first-child {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .store-right p:last-child {
+      color: var(--text-sub);
+    }
+
+    /* ---------- TOP ICON ROW ---------- */
+
+    .product-nav {
+      padding: 4px 4vw 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      transition: transform 0.15s ease;
+    }
+
+    .nav-item:hover {
+      transform: translateY(-1px);
+    }
+
+    .nav-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1.8rem;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+    }
+
+    .nav-item span {
+      color: var(--text-sub);
+      transition: color 0.2s ease, font-weight 0.2s ease;
+    }
+
+    .nav-step-arrow {
+      font-size: 2.2rem;
+      color: #d1d5db;
+      line-height: 1;
+      transition: color 0.2s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+    }
+
+    /* COMPLETED / ACTIVE STATE (current + previous stay green) */
+
+    .nav-item.active .nav-icon {
+      background: var(--accent-green);
+      color: #ffffff;
+      box-shadow: 0 10px 26px rgba(34, 197, 94, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .nav-item.active span {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .nav-step-arrow.active {
+      color: var(--accent-green);
+      transform: translateY(-1px) scale(1.05);
+    }
+
+    /* PDF ICON STYLE (not part of progress bar) */
+    .nav-item.nav-pdf .nav-icon {
+      background: #111827;
+      color: #ffffff;
+    }
+
+    .nav-item.nav-pdf:hover .nav-icon {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ---------- MAIN SECTION ---------- */
+
+    .latest-section {
+      padding: 18px 8vw 40px;
+    }
+
+    .headline {
+      font-size: clamp(1.7rem, 2.4vw, 2.1rem);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .headline-accent {
+      color: #0071e3;
+    }
+
+    /* ---------- CARD SLIDER ---------- */
+
+    .card-slider {
+      position: relative;
+      margin-top: 12px;
+    }
+
+    .card-track {
+      display: flex;
+      gap: 22px;
+      overflow-x: auto;
+      padding: 6px 0 20px;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+    }
+
+    .card-track::-webkit-scrollbar {
+      height: 0; /* hide scrollbar (Safari/Chrome) */
+    }
+
+    .product-card {
+      scroll-snap-align: start;
+      flex: 0 0 min(360px, 80vw);
+      background: var(--card-bg);
+      border-radius: var(--radius-large);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .product-tag {
+      font-size: 0.9rem;
+      color: var(--accent-blue);
+      margin-bottom: 6px;
+    }
+
+    .product-price {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .product-image-wrap {
+      position: relative;
+      margin-top: 6px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #f8f8fa;
+      padding: 12px 14px;
+    }
+
+    /* EDUCATION LIST INSIDE CARD */
+    .educ-list {
+      list-style: disc;
+      padding-left: 18px;
+      margin: 0;
+      font-size: 0.86rem;
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+
+    .educ-list li {
+      margin-bottom: 4px;
+    }
+
+    .educ-note {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-top: 6px;
+    }
+
+    /* ---------- ARROWS (slider) ---------- */
+
+    .slider-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: #ffffff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition:
+        background 0.18s ease,
+        transform 0.12s ease,
+        box-shadow 0.18s ease;
+      z-index: 5;
+    }
+
+    .slider-arrow span {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .slider-arrow.left {
+      left: -18px;
+    }
+
+    .slider-arrow.right {
+      right: -18px;
+    }
+
+    .slider-arrow:hover {
+      background: #f0f0f0;
+      transform: translateY(-50%) scale(1.03);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    }
+
+    .slider-arrow:active {
+      transform: translateY(-50%) scale(0.96);
+    }
+
+    /* Hide arrows on small screens */
+    @media (max-width: 768px) {
+      .slider-arrow {
+        display: none;
+      }
+    }
+
+    /* ---------- PATIENT HANDOUT (PRINTABLE PDF) ---------- */
+
+    .handout-wrapper {
+      /* hidden on screen; only appears when printing */
+      display: none;
+      background: #ffffff;
+      color: #000000;
+      padding: 24px;
+      max-width: 8.5in;
+      margin: 0 auto;
+      font-size: 11pt;
+    }
+
+    .handout-header {
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 8px;
+    }
+
+    .handout-header h1 {
+      font-size: 18pt;
+      margin-bottom: 4px;
+    }
+
+    .handout-header p {
+      font-size: 10pt;
+      color: #4b5563;
+    }
+
+    .handout-section-title {
+      font-weight: 700;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 11.5pt;
+    }
+
+    .handout-text {
+      font-size: 10.5pt;
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+
+    .handout-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .handout-box {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-bottom: 4px;
+    }
+
+    .handout-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 10.5pt;
+    }
+
+    .handout-list li {
+      margin-bottom: 3px;
+    }
+
+    .handout-small {
+      font-size: 9.5pt;
+      color: #4b5563;
+    }
+
+    .handout-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 10pt;
+    }
+
+    .handout-table th,
+    .handout-table td {
+      border: 1px solid #d1d5db;
+      padding: 4px 6px;
+    }
+
+    .handout-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+
+    .handout-line {
+      border-bottom: 1px solid #d1d5db;
+      margin: 4px 0 2px;
+    }
+
+    /* ---------- PRINT STYLES ---------- */
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      /* Hide everything by default */
+      body * {
+        visibility: hidden;
+      }
+
+      /* Show only the handout for printing */
+      .handout-wrapper,
+      .handout-wrapper * {
+        visibility: visible;
+      }
+
+      .handout-wrapper {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0.7in;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="store-header">
+    <h1 class="store-logo">COPD Tools</h1>
+
+    <div class="store-right">
+      <p>Inpatient pharmacist education guide.</p>
+      <p>Use each card as a quick teaching script on rounds.</p>
+    </div>
+  </header>
+
+  <!-- ICON ROW (TOP NAV) WITH BIG ARROWS; PDF ICON AFTER SMOKING -->
+  <nav class="product-nav">
+    <div class="nav-step">
+      <button class="nav-item" data-target="card-assess">
+        <div class="nav-icon">🩺</div>
+        <span>Initial assess</span>
+      </button>
+      <div class="nav-step-arrow">➜</div>
+    </div>
+
+    <div class="nav-step">
+      <button class="nav-item" data-target="card-gold">
+        <div class="nav-icon">💊</div>
+        <span>GOLD A/B/E</span>
+      </button>
+      <div class="nav-step-arrow">➜</div>
+    </div>
+
+    <div class="nav-step">
+      <button class="nav-item" data-target="card-inhaler">
+        <div class="nav-icon">🌬️</div>
+        <span>Inhalers</span>
+      </button>
+      <div class="nav-step-arrow">➜</div>
+    </div>
+
+    <div class="nav-step">
+      <button class="nav-item" data-target="card-exacerbation">
+        <div class="nav-icon">🏥</div>
+        <span>Exacerbation</span>
+      </button>
+      <div class="nav-step-arrow">➜</div>
+    </div>
+
+    <div class="nav-step">
+      <button class="nav-item" data-target="card-discharge">
+        <div class="nav-icon">📄</div>
+        <span>Discharge</span>
+      </button>
+      <div class="nav-step-arrow">➜</div>
+    </div>
+
+    <div class="nav-step">
+      <button class="nav-item" data-target="card-smoking">
+        <div class="nav-icon">🚭</div>
+        <span>Smoking</span>
+      </button>
+      <!-- no arrow here on purpose (last education step) -->
+    </div>
+
+    <!-- PDF ICON (separate, round) -->
+    <button class="nav-item nav-pdf" id="pdfIcon">
+      <div class="nav-icon">📄</div>
+      <span>Pt handout</span>
+    </button>
+  </nav>
+
+  <!-- MAIN SLIDER SECTION -->
+  <main class="latest-section">
+    <h2 class="headline">
+      <span class="headline-accent">COPD Inpatient.</span> Pharmacist education cards.
+    </h2>
+
+    <div class="card-slider">
+      <button class="slider-arrow left" id="arrowLeft" aria-label="Previous">
+        <span>&lsaquo;</span>
+      </button>
+
+      <div class="card-track" id="cardTrack">
+        <!-- CARD 1: INITIAL ASSESSMENT -->
+        <article class="product-card" id="card-assess">
+          <div>
+            <h3 class="product-title">Initial Bedside Assessment</h3>
+            <div class="product-tag">At admission · 5–7 minutes</div>
+            <div class="product-price">
+              Goal: understand home regimen, technique, and barriers before teaching.
+            </div>
+          </div>
+
+          <div class="product-image-wrap">
+            <ul class="educ-list">
+              <li>Confirm all home inhalers (name, dose, frequency, device type).</li>
+              <li>Ask: “Which inhaler do you use every day? Which only when short of breath?”</li>
+              <li>Check recent oral steroids/antibiotics, oxygen, or BiPAP/CPAP use.</li>
+              <li>Screen for adherence issues, cost, confusion between inhalers.</li>
+              <li>Note smoking status and vaccine gaps (flu, COVID, pneumococcal, RSV).</li>
+            </ul>
+            <p class="educ-note">
+              Use this card at the first encounter with the patient.
+            </p>
+          </div>
+        </article>
+
+        <!-- CARD 2: GOLD FIRST-LINE -->
+        <article class="product-card" id="card-gold">
+          <div>
+            <h3 class="product-title">GOLD First-Line Therapy (ABE)</h3>
+            <div class="product-tag">Maintenance regimen check</div>
+            <div class="product-price">
+              Match the patient’s chronic regimen to GOLD A/B/E groups and adjust if needed.
+            </div>
+          </div>
+
+          <div class="product-image-wrap">
+            <ul class="educ-list">
+              <li><strong>Group A:</strong> Low symptoms, low risk → any bronchodilator (prefer LABA or LAMA).</li>
+              <li><strong>Group B:</strong> More symptoms, low risk → LABA + LAMA as first-line.</li>
+              <li><strong>Group E:</strong> Frequent exacerbations → LABA + LAMA; consider LABA + LAMA + ICS if eos ≥ 300.</li>
+              <li>Avoid LABA + ICS alone in COPD (unless clear asthma overlap).</li>
+              <li>All groups need a SABA rescue inhaler as needed.</li>
+            </ul>
+            <p class="educ-note">
+              In your note: “GOLD group __; recommend [LABA/LAMA/LABA+LAMA/Triple].”
+            </p>
+          </div>
+        </article>
+
+        <!-- CARD 3: INHALER TECHNIQUE -->
+        <article class="product-card" id="card-inhaler">
+          <div>
+            <h3 class="product-title">Inhaler Technique Teaching</h3>
+            <div class="product-tag">Teach-back method</div>
+            <div class="product-price">
+              Technique errors are one of the biggest causes of poor control and readmissions.
+            </div>
+          </div>
+
+          <div class="product-image-wrap">
+            <ul class="educ-list">
+              <li>Show device and say: “This is your <strong>daily maintenance inhaler</strong>.”</li>
+              <li>Demonstrate once slowly → have patient “show me how you’ll use it at home.”</li>
+              <li><strong>MDI:</strong> Shake → exhale → slow deep breath with press → hold 10 sec.</li>
+              <li><strong>DPI:</strong> Load → exhale away → fast, deep breath in → hold 10 sec.</li>
+              <li><strong>Neb:</strong> Sit upright; breathe normally through mouthpiece until mist stops; clean daily.</li>
+            </ul>
+            <p class="educ-note">
+              Correct 1–2 key errors at a time; repeat teach-back each visit.
+            </p>
+          </div>
+        </article>
+
+        <!-- CARD 4: EXACERBATION & INPATIENT MEDS -->
+        <article class="product-card" id="card-exacerbation">
+          <div>
+            <h3 class="product-title">Exacerbation & Inpatient Meds</h3>
+            <div class="product-tag">During hospitalization</div>
+            <div class="product-price">
+              Make sure acute treatment is appropriate and chronic therapy is not forgotten.
+            </div>
+          </div>
+
+          <div class="product-image-wrap">
+            <ul class="educ-list">
+              <li>Scheduled SABA ± SAMA while unstable; avoid duplicate long-acting bronchodilators.</li>
+              <li>Continue or restart maintenance LABA/LAMA when clinically appropriate.</li>
+              <li><strong>Steroids:</strong> common order: prednisone 40 mg PO daily × 5 days.</li>
+              <li>Counsel: morning dosing, with food; warn about insomnia, mood, hyperglycemia.</li>
+              <li><strong>Antibiotics:</strong> only if increased sputum purulence, volume, dyspnea, or ventilatory support.</li>
+            </ul>
+            <p class="educ-note">
+              Document indication, choice, and planned duration for steroids and antibiotics.
+            </p>
+          </div>
+        </article>
+
+        <!-- CARD 5: DISCHARGE & ACTION PLAN -->
+        <article class="product-card" id="card-discharge">
+          <div>
+            <h3 class="product-title">Discharge & COPD Action Plan</h3>
+            <div class="product-tag">Before leaving hospital</div>
+            <div class="product-price">
+              Goal: clear regimen, clear instructions, and early follow-up to prevent readmission.
+            </div>
+          </div>
+
+          <div class="product-image-wrap">
+            <ul class="educ-list">
+              <li>Reconcile inhalers; remove duplicates and inpatient-only products.</li>
+              <li>Label clearly: which inhaler is <strong>daily maintenance</strong> vs. <strong>rescue</strong>.</li>
+              <li>Write out steroid/antibiotic stop dates in plain language.</li>
+              <li>Give simple action plan:
+                <ul class="educ-list">
+                  <li><strong>Green:</strong> baseline; use daily inhalers.</li>
+                  <li><strong>Yellow:</strong> increased cough/SOB/rescue use → call clinic, follow written steps.</li>
+                  <li><strong>Red:</strong> severe SOB at rest, blue lips, confusion → call 911 / ED.</li>
+                </ul>
+              </li>
+              <li>Confirm follow-up appointment within 2–4 weeks.</li>
+            </ul>
+            <p class="educ-note">
+              Ask: “Tell me one reason you’d call your doctor and one reason you’d call 911.”
+            </p>
+          </div>
+        </article>
+
+        <!-- CARD 6: SMOKING CESSATION -->
+        <article class="product-card" id="card-smoking">
+          <div>
+            <h3 class="product-title">Smoking Cessation Script</h3>
+            <div class="product-tag">3-step pharmacist approach</div>
+            <div class="product-price">
+              Use admission as a “teachable moment” to start or adjust a quit plan.
+            </div>
+          </div>
+
+          <div class="product-image-wrap">
+            <ul class="educ-list">
+              <li><strong>Ask & Advise:</strong> “Do you smoke?” → “Quitting is the most important thing to slow COPD and stay out of the hospital.”</li>
+              <li><strong>Assess & Assist:</strong> If ready, offer NRT, varenicline, or bupropion per protocol.</li>
+              <li>If not ready, discuss cutting down and a future quit date (non-judgmental).</li>
+              <li><strong>Arrange:</strong> Add quitline number and outpatient referral into discharge instructions.</li>
+              <li>Document plan in your progress note and med reconciliation.</li>
+            </ul>
+            <p class="educ-note">
+              Even a 1–2 minute conversation here can make a difference.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <button class="slider-arrow right" id="arrowRight" aria-label="Next">
+        <span>&rsaquo;</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- PATIENT EDUCATION HANDOUT (PRINT-ONLY, PATIENT-FRIENDLY CONTENT) -->
+  <section class="handout-wrapper" id="patientHandout">
+    <div class="handout-header">
+      <h1>COPD Breathing Plan & Home Instructions</h1>
+      <p>This sheet is for you. Keep it where you can see it every day.</p>
+    </div>
+
+    <!-- SHORT INTRO -->
+    <div class="handout-box">
+      <p class="handout-text">
+        You have COPD (chronic obstructive pulmonary disease). This means your lungs are more
+        narrow and it can be harder to breathe. The medicines and tips on this page can help you
+        breathe easier, stay out of the hospital, and keep doing the things you enjoy.
+      </p>
+    </div>
+
+    <div class="handout-grid">
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="handout-section-title">1. Your Daily Inhalers (Use Every Day)</div>
+        <p class="handout-text">
+          These inhalers are your “<strong>controllers</strong>.” They work best when you use them
+          every day, even on days you feel good.
+        </p>
+
+        <div class="handout-box">
+          <table class="handout-table">
+            <thead>
+              <tr>
+                <th>Daily inhaler</th>
+                <th>When to use</th>
+                <th>What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Example: Spiriva®, Anoro®, Breztri®</td>
+                <td>Once or twice a day</td>
+                <td>Keeps airways open and helps prevent flare-ups.</td>
+              </tr>
+              <tr>
+                <td>My inhaler: ____________________</td>
+                <td>___________</td>
+                <td>_______________________________</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="handout-small" style="margin-top:4px;">
+            Tip: Take your daily inhaler at the same time every day, like with brushing your teeth.
+          </p>
+        </div>
+
+        <div class="handout-section-title">2. Your Rescue Inhaler (Quick Relief)</div>
+        <p class="handout-text">
+          This is your “<strong>rescue</strong>” or “quick relief” inhaler. Use it when you feel more
+          short of breath, wheezy, or tight in your chest.
+        </p>
+
+        <div class="handout-box">
+          <table class="handout-table">
+            <thead>
+              <tr>
+                <th>Rescue inhaler</th>
+                <th>How to use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Example: albuterol (ProAir®, Ventolin®)</td>
+                <td>2 puffs every 4–6 hours as needed for shortness of breath.</td>
+              </tr>
+              <tr>
+                <td>My rescue inhaler: ______________</td>
+                <td>____ puffs every ____ hours as needed</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="handout-small" style="margin-top:4px;">
+            If you need your rescue inhaler more than usual, follow the Yellow Zone plan on this page.
+          </p>
+        </div>
+
+        <div class="handout-section-title">3. How to Use Your Inhaler</div>
+        <div class="handout-box">
+          <p class="handout-small"><strong>For most inhalers:</strong></p>
+          <ul class="handout-list">
+            <li>Stand or sit up straight.</li>
+            <li>Breathe out slowly, away from the inhaler.</li>
+            <li>Put the mouthpiece in your mouth and seal your lips around it.</li>
+            <li>Breathe in as your provider showed you, then hold your breath for about 10 seconds.</li>
+            <li>Breathe out slowly.</li>
+          </ul>
+          <p class="handout-small" style="margin-top:4px;">
+            Ask your nurse, doctor, or pharmacist to watch you use your inhaler before you leave the
+            hospital. It is okay to ask questions.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="handout-section-title">4. COPD Zones – When to Act</div>
+        <div class="handout-box">
+          <p class="handout-small"><strong>Green Zone – Doing well</strong></p>
+          <ul class="handout-list">
+            <li>Breathing is your usual “normal.”</li>
+            <li>Usual cough and mucus.</li>
+            <li>You can do daily activities.</li>
+          </ul>
+          <p class="handout-small">
+            Keep using your daily inhalers as prescribed.
+          </p>
+        </div>
+
+        <div class="handout-box">
+          <p class="handout-small"><strong>Yellow Zone – Warning sign (Call your clinic)</strong></p>
+          <ul class="handout-list">
+            <li>More shortness of breath than usual.</li>
+            <li>More cough, or mucus looks thicker or changes color.</li>
+            <li>You are using your rescue inhaler more often than normal.</li>
+          </ul>
+          <p class="handout-small">
+            What to do:
+          </p>
+          <ul class="handout-list">
+            <li>Use your rescue inhaler as directed.</li>
+            <li>Call your doctor or clinic within 24 hours for instructions.</li>
+          </ul>
+          <p class="handout-small">
+            Your provider may add a short course of steroid pills or antibiotics if needed.
+          </p>
+        </div>
+
+        <div class="handout-box">
+          <p class="handout-small"><strong>Red Zone – Emergency (Call 911 or go to Emergency Room)</strong></p>
+          <ul class="handout-list">
+            <li>Very hard time breathing, even at rest.</li>
+            <li>Chest pain, blue lips or fingertips.</li>
+            <li>Too short of breath to speak in full sentences.</li>
+            <li>Rescue inhaler is not helping or wears off very quickly.</li>
+          </ul>
+          <p class="handout-small">
+            This is an emergency. Call 911 or have someone take you to the nearest Emergency Room.
+          </p>
+        </div>
+
+        <div class="handout-section-title">5. Other Medicines You May Receive</div>
+        <div class="handout-box">
+          <p class="handout-small">
+            During or after your hospital stay, you may receive:
+          </p>
+          <ul class="handout-list">
+            <li><strong>Steroid pills</strong> (for example, prednisone) to reduce swelling in the lungs.</li>
+            <li><strong>Antibiotics</strong> if there is a lung infection (pneumonia or bronchitis).</li>
+          </ul>
+          <p class="handout-small">
+            Always finish these medicines as instructed unless your doctor tells you to stop.
+          </p>
+        </div>
+
+        <div class="handout-section-title">6. Smoking & Lung Health</div>
+        <div class="handout-box">
+          <p class="handout-small">
+            If you smoke, quitting is the most important thing you can do to slow down COPD.
+          </p>
+          <ul class="handout-list">
+            <li>Ask your care team about nicotine patches, gum, or other quit-smoking medicines.</li>
+            <li>Call the quitline (for example, 1-800-QUIT-NOW) for free support.</li>
+          </ul>
+        </div>
+
+        <div class="handout-section-title">7. Follow-Up</div>
+        <div class="handout-box">
+          <p class="handout-small">
+            After leaving the hospital, follow up with your doctor or clinic within 2–4 weeks.
+          </p>
+          <p class="handout-small">
+            Bring this sheet and all of your inhalers to your appointment.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <p class="handout-small" style="margin-top:10px;">
+      This information is for general education. Always follow the specific instructions given
+      by your doctors, nurses, and pharmacists.
+    </p>
+  </section>
+
+  <!-- JAVASCRIPT (slider + progress + PDF download via print) -->
+  <script>
+    const track = document.getElementById("cardTrack");
+    const btnLeft = document.getElementById("arrowLeft");
+    const btnRight = document.getElementById("arrowRight");
+    const stepItems = document.querySelectorAll(".nav-step .nav-item"); // 6 education steps
+    const navArrows = document.querySelectorAll(".nav-step-arrow");     // 5 arrows
+    const cards = document.querySelectorAll(".product-card");
+    const pdfIcon = document.getElementById("pdfIcon");
+
+    let currentIndex = 0;
+    let scrollTimeout;
+
+    function setActive(index, options = {}) {
+      const { scroll = true } = options;
+      if (index < 0 || index >= cards.length) return;
+
+      currentIndex = index;
+
+      // all previous + current icons stay green
+      stepItems.forEach((btn, i) => {
+        btn.classList.toggle("active", i <= index);
+      });
+
+      // arrows between completed steps become green (arrow after step i)
+      navArrows.forEach((arrow, i) => {
+        arrow.classList.toggle("active", i < index);
+      });
+
+      // scroll to card only when triggered by buttons/slider arrows
+      if (scroll) {
+        const targetId = stepItems[index].dataset.target;
+        const card = document.getElementById(targetId);
+        if (card) {
+          card.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "start",
+          });
+        }
+      }
+    }
+
+    btnRight.addEventListener("click", () => {
+      const nextIndex = Math.min(currentIndex + 1, cards.length - 1);
+      setActive(nextIndex);
+    });
+
+    btnLeft.addEventListener("click", () => {
+      const prevIndex = Math.max(currentIndex - 1, 0);
+      setActive(prevIndex);
+    });
+
+    // NAV STEPS → SET ACTIVE + SCROLL
+    stepItems.forEach((btn, index) => {
+      btn.addEventListener("click", () => {
+        setActive(index);
+      });
+    });
+
+    // When user scrolls manually, detect which card is most centered and update icons/arrows
+    function updateFromScroll() {
+      const trackRect = track.getBoundingClientRect();
+      const trackCenter = trackRect.left + trackRect.width / 2;
+
+      let bestIndex = 0;
+      let bestDelta = Infinity;
+
+      cards.forEach((card, i) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const delta = Math.abs(cardCenter - trackCenter);
+        if (delta < bestDelta) {
+          bestDelta = delta;
+          bestIndex = i;
+        }
+      });
+
+      if (bestIndex !== currentIndex) {
+        setActive(bestIndex, { scroll: false });
+      }
+    }
+
+    track.addEventListener("scroll", () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(updateFromScroll, 80);
+    });
+
+    // PDF ICON → opens print dialog so user can Save as PDF
+    function downloadPdf() {
+      window.print();
+    }
+
+    pdfIcon.addEventListener("click", downloadPdf);
+
+    // initialize first step as active
+    setActive(0, { scroll: false });
+  </script>
+</body>
+</html>
