@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>COPD Patient Handout – AdventHealth Ottawa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --accent: #0ea5e9;
+      --entry-red: #b91c1c;
+      --placeholder: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 12px;
+    }
+
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    /* CONFIG PANEL (SCREEN ONLY) */
+    .config-panel {
+      max-width: 900px;
+      margin: 0 auto 16px;
+      background: var(--card);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      padding: 14px 14px 12px;
+      font-size: 0.8rem;
+    }
+
+    .config-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .config-title {
+      font-size: 0.95rem;
+    }
+
+    .config-sub {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .config-badge {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      white-space: nowrap;
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 8px 14px;
+      margin-top: 6px;
+    }
+
+    .config-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 0.8rem;
+    }
+
+    label {
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    select, input[type="text"] {
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      padding: 5px 7px;
+      font-size: 0.8rem;
+      outline: none;
+      width: 100%;
+    }
+
+    select:focus,
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.25);
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+    }
+
+    .inline-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .inline-row input[type="text"] {
+      flex: 1;
+    }
+
+    .config-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: #0ea5e9;
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: #0284c7;
+    }
+
+    .btn-primary span.icon {
+      font-size: 1rem;
+    }
+
+    .preview-note {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+    }
+
+    /* PRINTABLE HANDOUT (PDF CONTENT) */
+
+    .handout-wrapper {
+      background: #ffffff;
+      color: #000000;
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 0.35in 0.4in;
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px #e5e7eb;
+    }
+
+    .handout-page {
+      page-break-after: always;
+    }
+
+    .handout-page:last-child {
+      page-break-after: auto;
+    }
+
+    .handout-header {
+      text-align: center;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 4px;
+    }
+
+    .handout-header h1 {
+      font-size: 14pt;
+      margin-bottom: 3px;
+    }
+
+    .handout-header p {
+      font-size: 8pt;
+      color: #4b5563;
+    }
+
+    .clinic-line {
+      font-size: 8pt;
+      margin-top: 2px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      margin-top: 6px;
+      margin-bottom: 3px;
+      font-size: 9.5pt;
+    }
+
+    .body-text {
+      font-size: 9pt;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+
+    .box {
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 5px 6px;
+      margin-bottom: 3px;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 9pt;
+    }
+
+    .list li {
+      margin-bottom: 2px;
+    }
+
+    .small {
+      font-size: 8pt;
+      color: #4b5563;
+    }
+
+    .footer-note {
+      font-size: 8pt;
+      color: #4b5563;
+      margin-top: 6px;
+    }
+
+    /* Dynamic entries (red) */
+    .entry {
+      color: var(--entry-red);
+      font-weight: 600;
+    }
+
+    .entry.placeholder {
+      color: var(--placeholder);
+      font-weight: 400;
+    }
+
+    /* Only appointment date keeps an underline */
+    .underline-appointment {
+      display: inline-block;
+      min-width: 130px;
+      border-bottom: 1px solid #9ca3af;
+      padding-bottom: 1px;
+    }
+
+    /* SCREEN VS PRINT */
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+
+      @page {
+        size: letter;
+        margin: 0.4in;
+      }
+
+      /* hide everything by default */
+      body * {
+        visibility: hidden;
+      }
+
+      /* only show handout */
+      .handout-wrapper,
+      .handout-wrapper * {
+        visibility: visible;
+      }
+
+      .handout-wrapper {
+        position: absolute;
+        inset: 0;
+        max-width: none;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- CONFIG PANEL (ON SCREEN) -->
+  <section class="config-panel">
+    <div class="config-header">
+      <div>
+        <h2 class="config-title">COPD Patient Handout – Drug Selection</h2>
+        <p class="config-sub">
+          AdventHealth Ottawa · Select guideline-style daily inhaler, rescue inhaler, steroid, and antibiotic. All entries appear in red on the handout.
+        </p>
+      </div>
+      <div class="config-badge">Pharmacist setup</div>
+    </div>
+
+    <div class="config-grid">
+      <!-- DAILY INHALER (CONTROLLER) -->
+      <div class="config-field">
+        <label for="dailySelect">Daily inhaler (controller)</label>
+        <select id="dailySelect">
+          <option value="">-- Select daily inhaler --</option>
+          <option value="LAMA once daily (e.g., tiotropium Respimat®)">
+            LAMA once daily (e.g., tiotropium Respimat®)
+          </option>
+          <option value="LABA/LAMA once daily (e.g., umeclidinium/vilanterol – Anoro Ellipta®)">
+            LABA/LAMA once daily (e.g., Anoro Ellipta®)
+          </option>
+          <option value="LABA/LAMA twice daily (e.g., glycopyrrolate/formoterol – Bevespi Aerosphere®)">
+            LABA/LAMA twice daily (e.g., Bevespi Aerosphere®)
+          </option>
+          <option value="LABA/ICS (e.g., budesonide/formoterol – Symbicort®)">
+            LABA/ICS (e.g., Symbicort®)
+          </option>
+          <option value="Triple therapy (LABA/LAMA/ICS) (e.g., fluticasone/umeclidinium/vilanterol – Trelegy Ellipta®)">
+            Triple therapy (e.g., Trelegy Ellipta®)
+          </option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="dailyOther"
+            placeholder="If Other, type name here"
+          />
+        </div>
+        <label style="margin-top:4px;">Daily inhaler dose (type)</label>
+        <input
+          type="text"
+          id="dailyDose"
+          placeholder="e.g., 2 inhalations"
+        />
+        <label style="margin-top:4px;">Daily inhaler directions</label>
+        <select id="dailyDirSelect">
+          <option value="">-- Select directions --</option>
+          <option value="Inhale once daily">
+            Inhale once daily
+          </option>
+          <option value="Inhale twice daily">
+            Inhale twice daily
+          </option>
+          <option value="Use every day as written on your prescription">
+            Use every day as written on your prescription
+          </option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="dailyDirOther"
+            placeholder="If Other, type directions here"
+          />
+        </div>
+        <p class="hint">
+          Fills “My daily inhaler and dose” + “How often I use it” in red.
+        </p>
+      </div>
+
+      <!-- RESCUE INHALER -->
+      <div class="config-field">
+        <label for="rescueSelect">Rescue inhaler (quick relief)</label>
+        <select id="rescueSelect">
+          <option value="">-- Select rescue inhaler --</option>
+          <option value="Albuterol HFA (ProAir®, Ventolin®, Proventil®)">
+            Albuterol HFA (ProAir®, Ventolin®, Proventil®)
+          </option>
+          <option value="Levalbuterol HFA (Xopenex®)">
+            Levalbuterol HFA (Xopenex®)
+          </option>
+          <option value="Albuterol nebulizer solution">
+            Albuterol nebulizer solution
+          </option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="rescueOther"
+            placeholder="If Other, type name here"
+          />
+        </div>
+        <label style="margin-top:4px;">Rescue dose (type)</label>
+        <input
+          type="text"
+          id="rescueDose"
+          placeholder="e.g., 90 mcg per puff or 2.5 mg neb"
+        />
+        <label style="margin-top:4px;">Rescue directions</label>
+        <select id="rescueDirSelect">
+          <option value="">-- Select directions --</option>
+          <option value="2 puffs every 4–6 hours as needed for shortness of breath">
+            2 puffs every 4–6 hours as needed
+          </option>
+          <option value="2 puffs every 6 hours as needed for shortness of breath">
+            2 puffs every 6 hours as needed
+          </option>
+          <option value="Use nebulizer treatment every 4–6 hours as needed for shortness of breath">
+            Nebulizer every 4–6 hours as needed
+          </option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="rescueDirOther"
+            placeholder="If Other, type directions here"
+          />
+        </div>
+        <p class="hint">
+          Fills “My rescue inhaler (name and dose)” and “How I use it” in red.
+        </p>
+      </div>
+
+      <!-- STEROID -->
+      <div class="config-field">
+        <label for="steroidSelect">Steroid (if prescribed)</label>
+        <select id="steroidSelect">
+          <option value="">-- Select steroid --</option>
+          <option value="Prednisone">Prednisone</option>
+          <option value="Methylprednisolone (Medrol®)">
+            Methylprednisolone (Medrol®)
+          </option>
+          <option value="Prednisolone">Prednisolone</option>
+          <option value="Dexamethasone">Dexamethasone</option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="steroidOther"
+            placeholder="If Other, type name here"
+          />
+        </div>
+        <label style="margin-top:4px;">Steroid dose (type)</label>
+        <input
+          type="text"
+          id="steroidDose"
+          placeholder="e.g., 40 mg by mouth"
+        />
+        <label style="margin-top:4px;">Steroid directions</label>
+        <select id="steroidDirSelect">
+          <option value="">-- Select directions --</option>
+          <option value="Take once daily for 5 days">
+            Take once daily for 5 days
+          </option>
+          <option value="Take once daily for 7 days">
+            Take once daily for 7 days
+          </option>
+          <option value="Take in the morning with food as written on your prescription">
+            Take in the morning with food as written on your prescription
+          </option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="steroidDirOther"
+            placeholder="If Other, type directions here"
+          />
+        </div>
+        <p class="hint">
+          Fills “My steroid medicine and dose” and “directions” in red.
+        </p>
+      </div>
+
+      <!-- ANTIBIOTIC -->
+      <div class="config-field">
+        <label for="antibioticSelect">Antibiotic (if prescribed)</label>
+        <select id="antibioticSelect">
+          <option value="">-- Select antibiotic --</option>
+          <option value="Amoxicillin-clavulanate (Augmentin®)">
+            Amoxicillin-clavulanate (Augmentin®)
+          </option>
+          <option value="Doxycycline">Doxycycline</option>
+          <option value="Azithromycin (Z-Pak®)">
+            Azithromycin (Z-Pak®)
+          </option>
+          <option value="Levofloxacin">Levofloxacin</option>
+          <option value="Cefuroxime">Cefuroxime</option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="antibioticOther"
+            placeholder="If Other, type name here"
+          />
+        </div>
+        <label style="margin-top:4px;">Antibiotic dose (type)</label>
+        <input
+          type="text"
+          id="antibioticDose"
+          placeholder="e.g., 875 mg by mouth"
+        />
+        <label style="margin-top:4px;">Antibiotic directions</label>
+        <select id="antibioticDirSelect">
+          <option value="">-- Select directions --</option>
+          <option value="Take twice daily for 5 days">
+            Take twice daily for 5 days
+          </option>
+          <option value="Take once daily for 5 days">
+            Take once daily for 5 days
+          </option>
+          <option value="Take as written on your prescription">
+            Take as written on your prescription
+          </option>
+          <option value="Other">Other (type your own)</option>
+        </select>
+        <div class="inline-row" style="margin-top:3px;">
+          <input
+            type="text"
+            id="antibioticDirOther"
+            placeholder="If Other, type directions here"
+          />
+        </div>
+        <p class="hint">
+          Fills “My antibiotic and dose” and “directions” in red.
+        </p>
+      </div>
+    </div>
+
+    <div class="config-actions">
+      <span class="preview-note">Click and choose “Save as PDF” in the print window.</span>
+      <button class="btn-primary" id="printBtn">
+        <span class="icon">📄</span>
+        <span>Print / Save as PDF</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- HANDOUT (2 PAGES) -->
+  <section class="handout-wrapper" id="handout">
+    <!-- PAGE 1 -->
+    <div class="handout-page">
+      <div class="handout-header">
+        <h1>COPD Breathing Plan &amp; Home Instructions</h1>
+        <p>(For you to take home)</p>
+        <p class="clinic-line"><strong>Clinic:</strong> AdventHealth Ottawa</p>
+        <p class="clinic-line">
+          <strong>Address:</strong> 1301 South Main Street, Ottawa, KS 66067
+        </p>
+        <p class="clinic-line">
+          <strong>Phone:</strong> 785-229-8200
+        </p>
+      </div>
+
+      <!-- 1. WHAT IS COPD -->
+      <div class="section-title">1. What is COPD?</div>
+      <div class="box">
+        <p class="body-text">
+          You have COPD (chronic obstructive pulmonary disease). This means your airways
+          are more narrow and it can be harder to breathe.
+        </p>
+        <p class="body-text">
+          You may have:
+        </p>
+        <ul class="list">
+          <li>Cough</li>
+          <li>Mucus</li>
+          <li>Shortness of breath</li>
+        </ul>
+        <p class="body-text" style="margin-top:3px;">
+          The medicines and tips on this page can help you:
+        </p>
+        <ul class="list">
+          <li>Breathe easier</li>
+          <li>Stay out of the hospital</li>
+          <li>Keep doing the things you enjoy</li>
+        </ul>
+      </div>
+
+      <!-- 2. DAILY INHALER -->
+      <div class="section-title">2. Your Daily Inhaler (Use Every Day)</div>
+      <div class="box">
+        <p class="body-text">
+          These inhalers are your <strong>daily controllers</strong>. They work best
+          when you use them every day, even when you feel good.
+        </p>
+        <p class="body-text">
+          <strong>My daily inhaler and dose:</strong>
+          <span id="outDailyFull" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text">
+          <strong>How often I use it:</strong>
+          <span id="outDailyDir" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text" style="margin-top:3px;">
+          What this inhaler does:
+        </p>
+        <ul class="list">
+          <li>Helps keep your airways open</li>
+          <li>Helps prevent flare-ups and hospital visits</li>
+        </ul>
+        <p class="small" style="margin-top:3px;">
+          Use your daily inhaler every day, even on “good” days. Try to take it at the same
+          time each day (for example, with brushing your teeth).
+        </p>
+      </div>
+
+      <!-- 3. RESCUE INHALER -->
+      <div class="section-title">3. Your Rescue Inhaler (Quick Relief)</div>
+      <div class="box">
+        <p class="body-text">
+          This is your <strong>rescue</strong> or <strong>quick relief</strong> inhaler.
+          Use it when your breathing suddenly gets worse.
+        </p>
+        <p class="body-text">
+          <strong>My rescue inhaler (name and dose):</strong>
+          <span id="outRescueFull" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text">
+          <strong>How I use it:</strong>
+          <span id="outRescueDir" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text" style="margin-top:3px;">
+          Use your rescue inhaler when you:
+        </p>
+        <ul class="list">
+          <li>Feel more short of breath than usual</li>
+          <li>Have more wheezing or chest tightness</li>
+        </ul>
+        <p class="small" style="margin-top:3px;">
+          Do not use it on a fixed schedule every day unless your doctor tells you to.
+          If you need your rescue inhaler more often than usual, follow the Yellow Zone
+          steps and call your clinic.
+        </p>
+      </div>
+
+      <!-- 4. INHALER USE -->
+      <div class="section-title">4. How to Use Your Inhaler</div>
+      <div class="box">
+        <p class="body-text">
+          These are general steps. Your nurse or pharmacist may adjust them for your device.
+        </p>
+        <ul class="list">
+          <li>Sit or stand up straight.</li>
+          <li>Breathe out slowly, away from the inhaler.</li>
+          <li>Put the mouthpiece in your mouth and seal your lips around it.</li>
+          <li>Breathe in like your provider showed you.</li>
+          <li>Hold your breath for about 10 seconds if you can.</li>
+          <li>Breathe out slowly.</li>
+        </ul>
+        <p class="small" style="margin-top:3px;">
+          Before you go home, ask: “Can you watch me use my inhaler to make sure I am doing it right?”
+          It is always okay to ask questions.
+        </p>
+      </div>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="handout-page">
+      <p class="small" style="text-align:right; margin-bottom:3px;">
+        COPD Breathing Plan – Page 2
+      </p>
+
+      <!-- 5. ZONES -->
+      <div class="section-title">5. COPD Zones – When To Act</div>
+
+      <div class="box">
+        <p class="small"><strong>Green Zone – Doing Well</strong></p>
+        <ul class="list">
+          <li>Your breathing feels like your usual “normal”.</li>
+          <li>Your cough and mucus are about the same as usual.</li>
+          <li>You can do your daily activities.</li>
+        </ul>
+        <p class="small">
+          Keep using your daily inhalers as prescribed. Use your rescue inhaler only when you need it.
+        </p>
+      </div>
+
+      <div class="box">
+        <p class="small"><strong>Yellow Zone – Warning (Call Your Clinic)</strong></p>
+        <ul class="list">
+          <li>You are more short of breath than usual.</li>
+          <li>You have more cough or your mucus is thicker or changes color.</li>
+          <li>You need your rescue inhaler more often than usual.</li>
+        </ul>
+        <p class="small">
+          What to do:
+        </p>
+        <ul class="list">
+          <li>Use your rescue inhaler as directed.</li>
+          <li>Call your doctor or clinic within 24 hours for instructions.</li>
+        </ul>
+        <p class="small">
+          Your provider may add a short course of steroid pills or antibiotics if needed.
+        </p>
+      </div>
+
+      <div class="box">
+        <p class="small"><strong>Red Zone – Emergency (Call 911)</strong></p>
+        <ul class="list">
+          <li>It is very hard to breathe, even when you are resting.</li>
+          <li>You cannot speak in full sentences because of shortness of breath.</li>
+          <li>Your lips or fingertips look blue.</li>
+          <li>You feel confused, very dizzy, or have chest pain.</li>
+          <li>Your rescue inhaler is not helping or wears off very fast.</li>
+        </ul>
+        <p class="small">
+          This is an emergency. Call 911 right away or have someone take you to the closest Emergency Room.
+          Do not wait to see if it gets better on its own.
+        </p>
+      </div>
+
+      <!-- 6. OTHER MEDS -->
+      <div class="section-title">6. Other Medicines You May Receive</div>
+      <div class="box">
+        <p class="small">
+          During or after your hospital stay, you may get:
+        </p>
+        <ul class="list">
+          <li>
+            <strong>Steroid pills</strong> (for example, prednisone) to reduce swelling and irritation in your lungs.
+          </li>
+          <li>
+            <strong>Antibiotics</strong> if your team thinks you have a lung infection.
+          </li>
+        </ul>
+        <p class="body-text" style="margin-top:3px;">
+          <strong>My steroid medicine and dose:</strong>
+          <span id="outSteroidFull" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text">
+          <strong>How long I take it / directions:</strong>
+          <span id="outSteroidDir" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text" style="margin-top:3px;">
+          <strong>My antibiotic and dose:</strong>
+          <span id="outAntibioticFull" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="body-text">
+          <strong>How long I take it / directions:</strong>
+          <span id="outAntibioticDir" class="entry placeholder">not filled in</span>
+        </p>
+        <p class="small" style="margin-top:3px;">
+          Take these medicines exactly as told. Do not stop early unless your doctor tells you to.
+        </p>
+      </div>
+
+      <!-- 7. SMOKING -->
+      <div class="section-title">7. Smoking and Your Lungs</div>
+      <div class="box">
+        <p class="small">
+          If you smoke, quitting is the most important thing you can do to slow down COPD.
+        </p>
+        <ul class="list">
+          <li>Ask your care team about nicotine patches, gum, lozenges, or other quit-smoking medicines.</li>
+          <li>Ask about quit-smoking programs or classes.</li>
+          <li>Many places have a free quitline like <strong>1-800-QUIT-NOW</strong>.</li>
+        </ul>
+        <p class="body-text" style="margin-top:3px;">
+          <strong>My quit plan notes:</strong>
+        </p>
+        <p class="body-text">&nbsp;</p>
+        <p class="body-text">&nbsp;</p>
+      </div>
+
+      <!-- 8. FOLLOW UP -->
+      <div class="section-title">8. Follow-Up After You Leave the Hospital</div>
+      <div class="box">
+        <p class="small">
+          See your doctor or clinic within <strong>2–4 weeks</strong> after leaving the hospital.
+          Bring this sheet and all of your inhalers to your appointment.
+        </p>
+        <p class="body-text" style="margin-top:3px;">
+          <strong>Clinic/Doctor:</strong> AdventHealth Ottawa
+        </p>
+        <p class="body-text">
+          <strong>Address:</strong> 1301 South Main Street, Ottawa, KS 66067
+        </p>
+        <p class="body-text">
+          <strong>Phone number:</strong> 785-229-8200
+        </p>
+        <p class="body-text">
+          <strong>Appointment date:</strong>
+          <span class="underline-appointment">__________________________</span>
+        </p>
+      </div>
+
+      <!-- 9. FINAL NOTE -->
+      <p class="footer-note">
+        This page is general education. Always follow the specific instructions given by your doctors, nurses,
+        and pharmacists. If you are unsure what to do, call your clinic and ask.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    // DAILY
+    const dailySelect = document.getElementById("dailySelect");
+    const dailyOther = document.getElementById("dailyOther");
+    const dailyDose = document.getElementById("dailyDose");
+    const dailyDirSelect = document.getElementById("dailyDirSelect");
+    const dailyDirOther = document.getElementById("dailyDirOther");
+
+    // RESCUE
+    const rescueSelect = document.getElementById("rescueSelect");
+    const rescueOther = document.getElementById("rescueOther");
+    const rescueDose = document.getElementById("rescueDose");
+    const rescueDirSelect = document.getElementById("rescueDirSelect");
+    const rescueDirOther = document.getElementById("rescueDirOther");
+
+    // STEROID
+    const steroidSelect = document.getElementById("steroidSelect");
+    const steroidOther = document.getElementById("steroidOther");
+    const steroidDose = document.getElementById("steroidDose");
+    const steroidDirSelect = document.getElementById("steroidDirSelect");
+    const steroidDirOther = document.getElementById("steroidDirOther");
+
+    // ANTIBIOTIC
+    const antibioticSelect = document.getElementById("antibioticSelect");
+    const antibioticOther = document.getElementById("antibioticOther");
+    const antibioticDose = document.getElementById("antibioticDose");
+    const antibioticDirSelect = document.getElementById("antibioticDirSelect");
+    const antibioticDirOther = document.getElementById("antibioticDirOther");
+
+    // OUTPUT SPANS
+    const outDailyFull = document.getElementById("outDailyFull");
+    const outDailyDir = document.getElementById("outDailyDir");
+
+    const outRescueFull = document.getElementById("outRescueFull");
+    const outRescueDir = document.getElementById("outRescueDir");
+    const outSteroidFull = document.getElementById("outSteroidFull");
+    const outSteroidDir = document.getElementById("outSteroidDir");
+    const outAntibioticFull = document.getElementById("outAntibioticFull");
+    const outAntibioticDir = document.getElementById("outAntibioticDir");
+
+    const printBtn = document.getElementById("printBtn");
+
+    function getSelectedOrOther(selectEl, otherEl) {
+      const val = selectEl.value;
+      if (!val) return "";
+      if (val === "Other") {
+        return (otherEl.value || "").trim();
+      }
+      return val;
+    }
+
+    function getDir(selectEl, otherEl) {
+      const val = selectEl.value;
+      if (!val) return "";
+      if (val === "Other") {
+        return (otherEl.value || "").trim();
+      }
+      return val;
+    }
+
+    function updateEntry(el, value) {
+      if (value && value.trim() !== "") {
+        el.textContent = value;
+        el.classList.remove("placeholder");
+      } else {
+        el.textContent = "not filled in";
+        el.classList.add("placeholder");
+      }
+    }
+
+    function syncOutputs() {
+      // DAILY
+      const dailyName = getSelectedOrOther(dailySelect, dailyOther);
+      const dailyDoseVal = (dailyDose.value || "").trim();
+      let dailyFull = dailyName;
+      if (dailyDoseVal) {
+        dailyFull = dailyFull
+          ? `${dailyFull} (${dailyDoseVal})`
+          : dailyDoseVal;
+      }
+      const dailyDirVal = getDir(dailyDirSelect, dailyDirOther);
+
+      // RESCUE
+      const rescueName = getSelectedOrOther(rescueSelect, rescueOther);
+      const rescueDoseVal = (rescueDose.value || "").trim();
+      let rescueFull = rescueName;
+      if (rescueDoseVal) {
+        rescueFull = rescueFull
+          ? `${rescueFull} (${rescueDoseVal})`
+          : rescueDoseVal;
+      }
+      const rescueDirVal = getDir(rescueDirSelect, rescueDirOther);
+
+      // STEROID
+      const steroidName = getSelectedOrOther(steroidSelect, steroidOther);
+      const steroidDoseVal = (steroidDose.value || "").trim();
+      let steroidFull = steroidName;
+      if (steroidDoseVal) {
+        steroidFull = steroidFull
+          ? `${steroidFull} (${steroidDoseVal})`
+          : steroidDoseVal;
+      }
+      const steroidDirVal = getDir(steroidDirSelect, steroidDirOther);
+
+      // ANTIBIOTIC
+      const antibioticName = getSelectedOrOther(antibioticSelect, antibioticOther);
+      const antibioticDoseVal = (antibioticDose.value || "").trim();
+      let antibioticFull = antibioticName;
+      if (antibioticDoseVal) {
+        antibioticFull = antibioticFull
+          ? `${antibioticFull} (${antibioticDoseVal})`
+          : antibioticDoseVal;
+      }
+      const antibioticDirVal = getDir(antibioticDirSelect, antibioticDirOther);
+
+      // Update spans
+      updateEntry(outDailyFull, dailyFull);
+      updateEntry(outDailyDir, dailyDirVal);
+
+      updateEntry(outRescueFull, rescueFull);
+      updateEntry(outRescueDir, rescueDirVal);
+
+      updateEntry(outSteroidFull, steroidFull);
+      updateEntry(outSteroidDir, steroidDirVal);
+
+      updateEntry(outAntibioticFull, antibioticFull);
+      updateEntry(outAntibioticDir, antibioticDirVal);
+    }
+
+    [
+      dailySelect, dailyOther, dailyDose, dailyDirSelect, dailyDirOther,
+      rescueSelect, rescueOther, rescueDose, rescueDirSelect, rescueDirOther,
+      steroidSelect, steroidOther, steroidDose, steroidDirSelect, steroidDirOther,
+      antibioticSelect, antibioticOther, antibioticDose, antibioticDirSelect, antibioticDirOther
+    ].forEach(el => {
+      el.addEventListener("change", syncOutputs);
+      el.addEventListener("input", syncOutputs);
+    });
+
+    printBtn.addEventListener("click", () => {
+      syncOutputs();
+      window.print();
+    });
+
+    // initial sync
+    syncOutputs();
+  </script>
+</body>
+</html>
