@@ -953,12 +953,17 @@
       scrollTimeout = setTimeout(updateFromScroll, 80);
     });
 
-    // PDF ICON → opens print dialog so user can Save as PDF
-    function downloadPdf() {
-      window.print();
-    }
+    // Pt handout → go to index2.html on GitHub Pages
+function openHandout() {
+  // If index2.html is in the same folder:
+  window.location.href = "index2.html";
 
-    pdfIcon.addEventListener("click", downloadPdf);
+  // OR if you want to be explicit, use your full GitHub Pages URL, e.g.:
+  // window.location.href = "https://yourname.github.io/your-repo/index2.html";
+}
+
+pdfIcon.addEventListener("click", openHandout);
+
 
     // initialize first step as active
     setActive(0, { scroll: false });
