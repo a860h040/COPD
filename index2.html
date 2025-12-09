@@ -520,6 +520,24 @@
       margin-top: 3px;
     }
 
+    /* NEW: embedded Tiotropium PDF wrapper */
+    .tiotr-wrapper {
+      margin-top: 16px;
+      page-break-before: always;
+      display: none;
+    }
+
+    .tiotr-wrapper iframe {
+      width: 100%;
+      height: 1000px;
+      border: none;
+    }
+
+    .tiotr-wrapper.show {
+      display: block;
+    }
+    /* END NEW */
+
     /* ---------- PRINT STYLES ---------- */
 
     @media print {
@@ -702,7 +720,7 @@
       </div>
     </section>
 
-    <!-- PATIENT PDF (2 PAGES) -->
+    <!-- PATIENT PDF (2 PAGES + Tiotropium attachment) -->
     <section id="pdfContainer" class="handout-hidden">
       <div class="handout-wrapper" id="handout">
         <!-- PAGE 1 -->
@@ -777,15 +795,13 @@
               time each day (for example, with brushing your teeth).
             </p>
 
-            <!-- NEW: Tiotropium Respimat PDF link block -->
+            <!-- Text instructions block (optional visual cue) -->
             <p id="tiotropiumRespimatInstructions" class="small" style="margin-top:4px; display:none;">
               <strong>Device instructions:</strong>
               You are using <strong>Tiotropium Respimat®</strong>.
-              For step-by-step picture instructions on how to use this inhaler, open:
-              <a href="Tiotropium.pdf" target="_blank">Tiotropium Respimat® user guide (PDF)</a>.
+              For step-by-step picture instructions on how to use this inhaler, see the attached
+              Tiotropium Respimat® instruction pages at the end of this handout.
             </p>
-            <!-- END NEW BLOCK -->
-
           </div>
 
           <!-- 3. RESCUE INHALER -->
@@ -996,6 +1012,16 @@
             and pharmacists. If you are unsure what to do, call your clinic and ask.
           </p>
         </div>
+
+        <!-- NEW: Embedded Tiotropium.pdf pages (only when selected) -->
+        <div id="tiotropiumPdfWrapper" class="tiotr-wrapper">
+          <iframe
+            src="Tiotropium.pdf"
+            title="Tiotropium Respimat® Instructions PDF"
+            class="tiotr-iframe">
+          </iframe>
+        </div>
+        <!-- END NEW -->
       </div>
     </section>
   </main>
@@ -1267,10 +1293,10 @@
     const otherMedsBlock = document.getElementById("otherMedsBlock");
     const otherMedsList = document.getElementById("otherMedsList");
 
-    // NEW: Tiotropium Respimat instructions block element
     const tiotropiumRespimatInstructions =
       document.getElementById("tiotropiumRespimatInstructions");
-    // END NEW
+    const tiotropiumPdfWrapper =
+      document.getElementById("tiotropiumPdfWrapper");
 
     function categoryLabels(type) {
       switch (type) {
@@ -1513,16 +1539,24 @@
         });
       }
 
-      // NEW: toggle Tiotropium Respimat instructions block
+      // Tiotropium Respimat® logic
+      const hasTiotropiumResp = dailyMedList.some(
+        (o) => o.name && o.name.indexOf("Tiotropium Respimat") !== -1
+      );
+
       if (tiotropiumRespimatInstructions) {
-        const hasTiotropiumResp = dailyMedList.some(
-          (o) => o.name && o.name.indexOf("Tiotropium Respimat") !== -1
-        );
         tiotropiumRespimatInstructions.style.display = hasTiotropiumResp
           ? "block"
           : "none";
       }
-      // END NEW
+
+      if (tiotropiumPdfWrapper) {
+        if (hasTiotropiumResp) {
+          tiotropiumPdfWrapper.classList.add("show");
+        } else {
+          tiotropiumPdfWrapper.classList.remove("show");
+        }
+      }
     }
 
     // ===== EVENT HANDLERS =====
