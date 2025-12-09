@@ -520,70 +520,67 @@
       margin-top: 3px;
     }
 
-   /* NEW: embedded Tiotropium PDF wrapper */
-.tiotr-wrapper {
-  margin-top: 16px;
-  page-break-before: always;
-  display: none; /* only shown when Tiotropium Respimat® is ordered */
-}
+    /* NEW: embedded Tiotropium PDF wrapper */
+    .tiotr-wrapper {
+      margin-top: 16px;
+      page-break-before: always;
+      display: none; /* only shown when Tiotropium Respimat® is ordered */
+    }
 
-.tiotr-wrapper.show {
-  display: block;
-}
+    /* show when JS adds .show */
+    .tiotr-wrapper.show {
+      display: block;
+    }
 
-.tiotr-embed {
-  width: 100%;
-  height: 1000px;
-  border: none;
-}
+    .tiotr-embed {
+      width: 100%;
+      height: 1000px;
+      border: none;
+    }
 
-
-/* Make the embedded PDF fill a full page when printing */
-@media print {
-  .tiotr-embed {
-    width: 100%;
-    height: 10.5in; /* roughly one letter page minus margins */
-  }
-}
-
-    /* END NEW */
+    /* Make the embedded PDF fill a full page when printing */
+    @media print {
+      .tiotr-embed {
+        width: 100%;
+        height: 10.5in; /* roughly one letter page minus margins */
+      }
+    }
 
     /* ---------- PRINT STYLES ---------- */
 
-   @media print {
-  body {
-    background: #ffffff;
-  }
+    @media print {
+      body {
+        background: #ffffff;
+      }
 
-  body * {
-    visibility: hidden;
-  }
+      body * {
+        visibility: hidden;
+      }
 
-  .handout-wrapper,
-  .handout-wrapper *,
-  .tiotr-wrapper,
-  .tiotr-wrapper * {
-    visibility: visible;
-  }
+      .handout-wrapper,
+      .handout-wrapper *,
+      .tiotr-wrapper,
+      .tiotr-wrapper * {
+        visibility: visible;
+      }
 
-  .handout-wrapper {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0.7in;
-    box-shadow: none;
-    border-radius: 0;
-    transform: scale(1); /* raw paper size */
-  }
+      .handout-wrapper {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0.7in;
+        box-shadow: none;
+        border-radius: 0;
+        transform: scale(1); /* raw paper size */
+      }
 
-  .tiotr-embed {
-    width: 100%;
-    height: 10.5in; /* roughly one letter page minus margins */
-  }
-}
-
+      /* override the "hidden PDF" class while printing */
+      .handout-hidden .handout-wrapper {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1033,15 +1030,13 @@
 
         <!-- NEW: Embedded Tiotropium.pdf pages (only when selected) -->
         <div id="tiotropiumPdfWrapper" class="tiotr-wrapper">
-  <!-- 'toolbar/navpanes/scrollbar=0' hides most viewer UI, 'view=FitH' fits width -->
-  <embed
-    src="Tiotropium.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
-    type="application/pdf"
-    class="tiotr-embed"
-  />
-</div>
-
-        <!-- END NEW -->
+          <!-- 'toolbar/navpanes/scrollbar=0' hides most viewer UI, 'view=FitH' fits width -->
+          <embed
+            src="Tiotropium.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
+            type="application/pdf"
+            class="tiotr-embed"
+          />
+        </div>
       </div>
     </section>
   </main>
