@@ -776,6 +776,16 @@
               Use your daily inhaler every day, even on “good” days. Try to take it at the same
               time each day (for example, with brushing your teeth).
             </p>
+
+            <!-- NEW: Tiotropium Respimat PDF link block -->
+            <p id="tiotropiumRespimatInstructions" class="small" style="margin-top:4px; display:none;">
+              <strong>Device instructions:</strong>
+              You are using <strong>Tiotropium Respimat®</strong>.
+              For step-by-step picture instructions on how to use this inhaler, open:
+              <a href="Tiotropium.pdf" target="_blank">Tiotropium Respimat® user guide (PDF)</a>.
+            </p>
+            <!-- END NEW BLOCK -->
+
           </div>
 
           <!-- 3. RESCUE INHALER -->
@@ -1257,6 +1267,11 @@
     const otherMedsBlock = document.getElementById("otherMedsBlock");
     const otherMedsList = document.getElementById("otherMedsList");
 
+    // NEW: Tiotropium Respimat instructions block element
+    const tiotropiumRespimatInstructions =
+      document.getElementById("tiotropiumRespimatInstructions");
+    // END NEW
+
     function categoryLabels(type) {
       switch (type) {
         case "daily":
@@ -1497,6 +1512,17 @@
           otherMedsList.appendChild(li);
         });
       }
+
+      // NEW: toggle Tiotropium Respimat instructions block
+      if (tiotropiumRespimatInstructions) {
+        const hasTiotropiumResp = dailyMedList.some(
+          (o) => o.name && o.name.indexOf("Tiotropium Respimat") !== -1
+        );
+        tiotropiumRespimatInstructions.style.display = hasTiotropiumResp
+          ? "block"
+          : "none";
+      }
+      // END NEW
     }
 
     // ===== EVENT HANDLERS =====
