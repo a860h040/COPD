@@ -546,41 +546,34 @@
       }
     }
 
-    /* ---------- PRINT STYLES ---------- */
-
+       /* ---------- PRINT STYLES (SIMPLER + RELIABLE) ---------- */
     @media print {
       body {
         background: #ffffff;
       }
 
-      body * {
-        visibility: hidden;
+      /* Hide UI / controls – only print the handout pages */
+      .store-header,
+      .headline,
+      .config-panel {
+        display: none !important;
       }
 
-      .handout-wrapper,
-      .handout-wrapper *,
-      .tiotr-wrapper,
-      .tiotr-wrapper * {
-        visibility: visible;
+      /* Always show the PDF/handout when printing */
+      #pdfContainer {
+        display: block !important;
       }
 
       .handout-wrapper {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0.7in;
         box-shadow: none;
         border-radius: 0;
-        transform: scale(1); /* raw paper size */
-      }
-
-      /* override the "hidden PDF" class while printing */
-      .handout-hidden .handout-wrapper {
-        display: block;
+        margin: 0;
+        padding: 0.7in;
+        width: 100%;
       }
     }
+
+    
   </style>
 </head>
 <body>
