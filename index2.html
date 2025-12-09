@@ -521,21 +521,27 @@
     }
 
     /* NEW: embedded Tiotropium PDF wrapper */
-    .tiotr-wrapper {
-      margin-top: 16px;
-      page-break-before: always;
-      display: none;
-    }
+    /* NEW: embedded Tiotropium PDF wrapper */
+.tiotr-wrapper {
+  margin-top: 16px;
+  page-break-before: always;
+  display: none; /* only shown when Tiotropium Respimat® is ordered */
+}
 
-    .tiotr-wrapper iframe {
-      width: 100%;
-      height: 1000px;
-      border: none;
-    }
+.tiotr-embed {
+  width: 100%;
+  height: 1000px;
+  border: none;
+}
 
-    .tiotr-wrapper.show {
-      display: block;
-    }
+/* Make the embedded PDF fill a full page when printing */
+@media print {
+  .tiotr-embed {
+    width: 100%;
+    height: 10.5in; /* roughly one letter page minus margins */
+  }
+}
+
     /* END NEW */
 
     /* ---------- PRINT STYLES ---------- */
@@ -1015,12 +1021,14 @@
 
         <!-- NEW: Embedded Tiotropium.pdf pages (only when selected) -->
         <div id="tiotropiumPdfWrapper" class="tiotr-wrapper">
-          <iframe
-            src="Tiotropium.pdf"
-            title="Tiotropium Respimat® Instructions PDF"
-            class="tiotr-iframe">
-          </iframe>
-        </div>
+  <!-- 'toolbar/navpanes/scrollbar=0' hides most viewer UI, 'view=FitH' fits width -->
+  <embed
+    src="Tiotropium.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
+    type="application/pdf"
+    class="tiotr-embed"
+  />
+</div>
+
         <!-- END NEW -->
       </div>
     </section>
