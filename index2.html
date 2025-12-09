@@ -416,12 +416,27 @@
     }
 
     .handout-page {
-      page-break-after: always;
-    }
+  page-break-inside: auto !important;
+  break-inside: auto !important;
+  page-break-before: auto;
+  page-break-after: auto; /* allow natural flow */
+  margin-bottom: 0;
+}
 
-    .handout-page:last-child {
-      page-break-after: auto;
-    }
+
+    /* FIXED — allows content to continue smoothly across printed pages */
+.handout-page {
+  page-break-before: auto;
+  page-break-after: auto;
+  page-break-inside: auto !important;
+
+  break-before: auto;
+  break-after: auto;
+  break-inside: auto !important;
+
+  margin-bottom: 0;
+}
+
 
     .handout-header {
       text-align: center;
@@ -683,7 +698,7 @@
     </section>
 
     <!-- PATIENT PDF (2 PAGES) -->
-    <section id="pdfContainer">
+   <section id="pdfContainer" class="handout-hidden">
       <div class="handout-wrapper" id="handout">
         <!-- PAGE 1 -->
         <div class="handout-page">
@@ -1559,6 +1574,7 @@
     renderMedOptions();
     renderOrders();
     document.documentElement.style.setProperty("--pdf-scale", pdfScaleSelect.value || "1");
+    togglePdfBtn.textContent = "👁️ Show patient PDF";
   </script>
 </body>
 </html>
