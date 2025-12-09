@@ -17,6 +17,7 @@
       --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.08);
       --entry-red: #b91c1c;
       --placeholder: #9ca3af;
+      --pdf-scale: 1;
     }
 
     * {
@@ -241,6 +242,7 @@
       font-size: 0.8rem;
     }
 
+    /* Base inputs */
     select,
     input[type="text"] {
       border-radius: 10px;
@@ -260,6 +262,17 @@
     input[type="text"]:focus {
       border-color: var(--accent-blue);
       box-shadow: 0 0 0 1px rgba(0, 113, 227, 0.2);
+      background: #ffffff;
+    }
+
+    /* Bigger medication dropdown box */
+    #medNameSelect {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 12px 14px;
+      font-size: 1rem;
+      width: 100%;
+      min-height: 260px; /* taller box */
       background: #ffffff;
     }
 
@@ -393,10 +406,7 @@
       background: #ffffff;
     }
 
-    /* SIMPLE PDF SCALE (optional – tweak if you like) */
-    :root {
-      --pdf-scale: 1;
-    }
+    /* HANDOUT WRAPPER & PAGES */
 
     .handout-wrapper {
       background: #ffffff;
@@ -416,27 +426,12 @@
     }
 
     .handout-page {
-  page-break-inside: auto !important;
-  break-inside: auto !important;
-  page-break-before: auto;
-  page-break-after: auto; /* allow natural flow */
-  margin-bottom: 0;
-}
-
-
-    /* FIXED — allows content to continue smoothly across printed pages */
-.handout-page {
-  page-break-before: auto;
-  page-break-after: auto;
-  page-break-inside: auto !important;
-
-  break-before: auto;
-  break-after: auto;
-  break-inside: auto !important;
-
-  margin-bottom: 0;
-}
-
+      page-break-inside: auto !important;
+      break-inside: auto !important;
+      page-break-before: auto;
+      page-break-after: auto;
+      margin-bottom: 0;
+    }
 
     .handout-header {
       text-align: center;
@@ -517,7 +512,6 @@
       padding-bottom: 1px;
     }
 
-    /* Extra-lists in PDF */
     #dailyExtrasBlock,
     #rescueExtrasBlock,
     #steroidExtrasBlock,
@@ -551,7 +545,7 @@
         padding: 0.7in;
         box-shadow: none;
         border-radius: 0;
-        transform: scale(1); /* use raw size on paper */
+        transform: scale(1); /* raw paper size */
       }
     }
   </style>
@@ -608,6 +602,17 @@
         </button>
       </div>
 
+      <!-- CUSTOM INPUT FOR "OTHER" -->
+      <div id="otherCustomInput" style="display:none; margin-top:8px;">
+        <label for="customMedInput">Enter medication name</label>
+        <input 
+          type="text" 
+          id="customMedInput" 
+          placeholder="Type medication not in list..."
+          style="width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db;"
+        />
+      </div>
+
       <!-- ORDER PANEL -->
       <div class="order-panel">
         <div class="order-panel-header">
@@ -635,7 +640,7 @@
           </div>
           <div>
             <label for="medNameSelect">Medication list (by combo/group)</label>
-            <select id="medNameSelect" size="6"></select>
+            <select id="medNameSelect" size="12"></select>
             <p class="hint">
               Shows only medications for the active category (Daily / Rescue / Steroid / Antibiotic / Other).
             </p>
@@ -698,7 +703,7 @@
     </section>
 
     <!-- PATIENT PDF (2 PAGES) -->
-   <section id="pdfContainer" class="handout-hidden">
+    <section id="pdfContainer" class="handout-hidden">
       <div class="handout-wrapper" id="handout">
         <!-- PAGE 1 -->
         <div class="handout-page">
@@ -1152,7 +1157,7 @@
         defaultDir: "Take as written on your prescription"
       },
 
-      // ANTIBIOTICS – ORAL (broad set)
+      // ANTIBIOTICS – ORAL
       { id: "a-penvk", type: "antibiotic", group: "Penicillin", name: "Penicillin V potassium (Pen VK)", defaultDose: "500 mg every 6 hours", defaultDir: "Take every 6 hours as prescribed" },
       { id: "a-amox", type: "antibiotic", group: "Aminopenicillin", name: "Amoxicillin", defaultDose: "500–875 mg every 8–12 hours", defaultDir: "Take as written on your prescription" },
       { id: "a-augmentin", type: "antibiotic", group: "Aminopenicillin + beta-lactamase inhibitor", name: "Amoxicillin-clavulanate (Augmentin®)", defaultDose: "875/125 mg twice daily", defaultDir: "Take 1 tablet twice daily for 5–7 days" },
@@ -1285,6 +1290,15 @@
     }
 
     function setActiveType(newType) {
+      // Show custom input for "other" category
+      if (newType === "other") {
+        document.getElementById("otherCustomInput").style.display = "block";
+        medNameSelect.style.display = "none";
+      } else {
+        document.getElementById("otherCustomInput").style.display = "none";
+        medNameSelect.style.display = "block";
+      }
+
       activeType = newType;
       const tabs = tabsContainer.querySelectorAll(".order-tab");
       tabs.forEach((btn) => {
@@ -1503,26 +1517,48 @@
     });
 
     addOrderBtn.addEventListener("click", () => {
-      const opt = medNameSelect.options[medNameSelect.selectedIndex];
-      if (!opt || !opt.value || opt.disabled) {
-        alert("Please select a medication from the list.");
-        return;
-      }
-      const med = findMedById(opt.value);
-      if (!med) {
-        alert("Selected medication not found.");
-        return;
-      }
-
-      const name = med.name;
+      let name = "";
       const dose = (doseInput.value || "").trim();
       const dir = (dirInput.value || "").trim();
+
+      if (activeType === "other") {
+        name = (document.getElementById("customMedInput").value || "").trim();
+        if (!name) {
+          alert("Please type a medication name.");
+          return;
+        }
+      } else {
+        const opt = medNameSelect.options[medNameSelect.selectedIndex];
+        if (!opt || !opt.value || opt.disabled) {
+          alert("Please select a medication from the list.");
+          return;
+        }
+        const med = findMedById(opt.value);
+        if (!med) {
+          alert("Selected medication not found.");
+          return;
+        }
+        name = med.name;
+      }
+
       let typeLabel = "";
-      if (activeType === "daily") typeLabel = "Daily inhaler";
-      else if (activeType === "rescue") typeLabel = "Rescue inhaler";
-      else if (activeType === "steroid") typeLabel = "Steroid";
-      else if (activeType === "antibiotic") typeLabel = "Antibiotic";
-      else if (activeType === "other") typeLabel = "Other med";
+      switch (activeType) {
+        case "daily":
+          typeLabel = "Daily inhaler";
+          break;
+        case "rescue":
+          typeLabel = "Rescue inhaler";
+          break;
+        case "steroid":
+          typeLabel = "Steroid";
+          break;
+        case "antibiotic":
+          typeLabel = "Antibiotic";
+          break;
+        case "other":
+          typeLabel = "Other med";
+          break;
+      }
 
       orders.push({
         id: nextOrderId++,
