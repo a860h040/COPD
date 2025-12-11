@@ -72,6 +72,12 @@
       color: var(--text-sub);
     }
 
+    /* Back button in header */
+    .back-btn {
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
     /* ---------- MAIN SECTION ---------- */
 
     .latest-section {
@@ -520,32 +526,6 @@
       margin-top: 3px;
     }
 
-    /* NEW: embedded Tiotropium PDF wrapper */
-    .tiotr-wrapper {
-      margin-top: 16px;
-      page-break-before: always;
-      display: none; /* only shown when Tiotropium Respimat® is ordered */
-    }
-
-    /* show when JS adds .show */
-    .tiotr-wrapper.show {
-      display: block;
-    }
-
-    .tiotr-embed {
-      width: 100%;
-      height: 1000px;
-      border: none;
-    }
-
-    /* Make the embedded PDF fill a full page when printing */
-    @media print {
-      .tiotr-embed {
-        width: 100%;
-        height: 10.5in; /* roughly one letter page minus margins */
-      }
-    }
-
     /* ---------- PRINT STYLES (SIMPLER + RELIABLE) ---------- */
     @media print {
       body {
@@ -581,6 +561,9 @@
     <div class="store-right">
       <p>AdventHealth Ottawa</p>
       <p>COPD Discharge Breathing Plan &amp; Med Orders</p>
+      <button type="button" class="btn-ghost back-btn" onclick="window.history.back()">
+        ← Go to previous page
+      </button>
     </div>
   </header>
 
@@ -726,7 +709,7 @@
       </div>
     </section>
 
-    <!-- PATIENT PDF (2 PAGES + Tiotropium attachment) -->
+    <!-- PATIENT PDF (2 PAGES; Tiotropium manual added only via merge) -->
     <section id="pdfContainer" class="handout-hidden">
       <div class="handout-wrapper" id="handout">
         <!-- PAGE 1 -->
@@ -801,7 +784,7 @@
               time each day (for example, with brushing your teeth).
             </p>
 
-            <!-- Text instructions block (optional visual cue) -->
+            <!-- Text instructions block for Tiotropium Respimat -->
             <p id="tiotropiumRespimatInstructions" class="small" style="margin-top:4px; display:none;">
               <strong>Device instructions:</strong>
               You are using <strong>Tiotropium Respimat®</strong>.
@@ -1017,15 +1000,6 @@
             This page is general education. Always follow the specific instructions given by your doctors, nurses,
             and pharmacists. If you are unsure what to do, call your clinic and ask.
           </p>
-        </div>
-
-        <!-- NEW: Embedded Tiotropium.pdf pages (only when selected, for on-screen view only) -->
-        <div id="tiotropiumPdfWrapper" class="tiotr-wrapper">
-          <embed
-            src="Tiotropium.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
-            type="application/pdf"
-            class="tiotr-embed"
-          />
         </div>
       </div>
     </section>
@@ -1310,8 +1284,6 @@
 
     const tiotropiumRespimatInstructions =
       document.getElementById("tiotropiumRespimatInstructions");
-    const tiotropiumPdfWrapper =
-      document.getElementById("tiotropiumPdfWrapper");
 
     function categoryLabels(type) {
       switch (type) {
@@ -1554,7 +1526,7 @@
         });
       }
 
-      // Tiotropium Respimat® logic
+      // Tiotropium Respimat® logic – show text note only
       const hasTiotropiumResp = dailyMedList.some(
         (o) => o.name && o.name.indexOf("Tiotropium Respimat") !== -1
       );
@@ -1563,14 +1535,6 @@
         tiotropiumRespimatInstructions.style.display = hasTiotropiumResp
           ? "block"
           : "none";
-      }
-
-      if (tiotropiumPdfWrapper) {
-        if (hasTiotropiumResp) {
-          tiotropiumPdfWrapper.classList.add("show");
-        } else {
-          tiotropiumPdfWrapper.classList.remove("show");
-        }
       }
     }
 
@@ -1766,4 +1730,3 @@
   </script>
 </body>
 </html>
-
