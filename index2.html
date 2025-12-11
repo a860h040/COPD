@@ -439,11 +439,11 @@
     .handout-page {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
-      page-break-after: always;         /* each section = one PDF page */
+      page-break-after: always;
     }
 
     .handout-page:last-child {
-      page-break-after: auto;           /* no extra blank page at end */
+      page-break-after: auto;
     }
 
     .handout-header {
@@ -556,7 +556,7 @@
         margin: 0;
         padding: 0.6in;
         width: 100%;
-        transform: scale(1); /* when printing, no extra scaling */
+        transform: scale(1);
       }
     }
   </style>
@@ -586,7 +586,7 @@
           <h3 class="config-title">Medication Order Center</h3>
           <p class="config-sub">
             Select a category, choose medication from the guideline-based list, and add dose &amp; directions.
-            Selected meds will drop into the patient PDF in red.
+            Selected meds will drop into the patient document in red.
           </p>
         </div>
         <div class="config-badge">For pharmacists</div>
@@ -705,18 +705,18 @@
 
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <button class="btn-ghost" id="togglePdfBtn">
-            👁️ Hide patient PDF
+            👁️ Hide patient document
           </button>
-          <span class="preview-note">Use the button to download the patient handout as PDF.</span>
+          <span class="preview-note">Use the button to download the patient handout as a Word document.</span>
           <button class="btn-primary" id="printBtn">
-            <span class="btn-icon">📄</span>
-            Download PDF
+            <span class="btn-icon">📝</span>
+            Download Word
           </button>
         </div>
       </div>
     </section>
 
-    <!-- PATIENT PDF SECTION -->
+    <!-- PATIENT DOC SECTION -->
     <section id="pdfContainer" class="handout-hidden">
       <div class="handout-wrapper" id="handout">
         <!-- PAGE 1 -->
@@ -795,8 +795,8 @@
             <p id="tiotropiumRespimatInstructions" class="small" style="margin-top:4px; display:none;">
               <strong>Device instructions:</strong>
               You are using <strong>Tiotropium Respimat®</strong>.
-              For step-by-step picture instructions on how to use this inhaler, see the attached
-              Tiotropium Respimat® instruction pages at the end of this handout.
+              For step-by-step picture instructions on how to use this inhaler, please see the attached
+              Tiotropium Respimat® instructions provided by your clinic.
             </p>
           </div>
 
@@ -1011,16 +1011,6 @@
       </div>
     </section>
   </main>
-
-  <!-- PDF libraries -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"
-    integrity="sha512-MpDFIChbcXl2QgipQrt1VcPHMldRILetapBl5MPCA9Y8r7qvlwx1/Mc9hNTzY+kS5kX6PdoDq41ws1HiVNLdZA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
   <script>
     // ===== MEDICATION DATA =====
@@ -1630,114 +1620,57 @@
       }
     });
 
-    // PDF size control (visual only)
+    // Preview size control (visual only)
     pdfScaleSelect.addEventListener("change", () => {
       const val = pdfScaleSelect.value || "1";
       document.documentElement.style.setProperty("--pdf-scale", val);
     });
 
-    // Hide / show PDF on screen
+    // Hide / show document on screen
     togglePdfBtn.addEventListener("click", () => {
       const hidden = pdfContainer.classList.toggle("handout-hidden");
       togglePdfBtn.textContent = hidden
-        ? "👁️ Show patient PDF"
-        : "👁️ Hide patient PDF";
+        ? "👁️ Show patient document"
+        : "👁️ Hide patient document";
     });
 
-    // Download handler – attach Tiotropium PDFs depending on selection
-    printBtn.addEventListener("click", async () => {
+    // Download as Word (.doc) – using HTML inside a .doc file
+    printBtn.addEventListener("click", () => {
+      // Make sure entries are up to date
       renderOrders();
 
       const wasHidden = pdfContainer.classList.contains("handout-hidden");
       if (wasHidden) pdfContainer.classList.remove("handout-hidden");
 
-      // Force true scale for PDF generation (fixes margin drift)
-      const rootStyle = getComputedStyle(document.documentElement);
-      const originalScale = rootStyle.getPropertyValue("--pdf-scale") || "1";
-      document.documentElement.style.setProperty("--pdf-scale", "1");
+      // Grab the main style block (for formatting in Word)
+      const styleTag = document.querySelector("style");
+      const stylesHtml = styleTag ? styleTag.outerHTML : "";
 
-      const element = document.getElementById("handout");
+      // Grab only the handout content (2 pages)
+      const handout = document.getElementById("handout");
+      const docContent = handout ? handout.outerHTML : "";
 
-      const opt = {
-        margin: 0, // let CSS padding control margins
-        filename: "COPD-Handout.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
-      };
+      const fullHtml =
+        "<html><head><meta charset='UTF-8'>" +
+        stylesHtml +
+        "</head><body>" +
+        docContent +
+        "</body></html>";
 
-      try {
-        const worker = html2pdf().from(element).set(opt).toPdf();
-        const pdf = await worker.get("pdf");
-        const pdfArray = pdf.output("arraybuffer");
+      const blob = new Blob(["\ufeff", fullHtml], {
+        type: "application/msword"
+      });
 
-        // Check which Tiotropium products were selected
-        const hasTiotropiumResp = orders.some(
-          (o) => o.type === "daily" && o.name.includes("Tiotropium Respimat")
-        );
-        const hasTiotropiumHandi = orders.some(
-          (o) => o.type === "daily" && o.name.includes("Tiotropium HandiHaler")
-        );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "COPD-Handout.doc";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-        // If no Tiotropium product, just download base PDF
-        if (!hasTiotropiumResp && !hasTiotropiumHandi) {
-          pdf.save("COPD-Handout.pdf");
-        } else {
-          const { PDFDocument } = PDFLib;
-          const basePdfDoc = await PDFDocument.load(pdfArray);
-          const mergedDoc = await PDFDocument.create();
-
-          const basePages = await mergedDoc.copyPages(
-            basePdfDoc,
-            basePdfDoc.getPageIndices()
-          );
-          basePages.forEach((p) => mergedDoc.addPage(p));
-
-          // Attach Tiotropium Respimat instructions if selected
-          if (hasTiotropiumResp) {
-            const respBytes = await fetch("Tiotropium.pdf").then((r) =>
-              r.arrayBuffer()
-            );
-            const respDoc = await PDFDocument.load(respBytes);
-            const respPages = await mergedDoc.copyPages(
-              respDoc,
-              respDoc.getPageIndices()
-            );
-            respPages.forEach((p) => mergedDoc.addPage(p));
-          }
-
-          // Attach Tiotropium HandiHaler instructions if selected
-          if (hasTiotropiumHandi) {
-            const handBytes = await fetch("handihaler.pdf").then((r) =>
-              r.arrayBuffer()
-            );
-            const handDoc = await PDFDocument.load(handBytes);
-            const handPages = await mergedDoc.copyPages(
-              handDoc,
-              handDoc.getPageIndices()
-            );
-            handPages.forEach((p) => mergedDoc.addPage(p));
-          }
-
-          const mergedBytes = await mergedDoc.save();
-          const blob = new Blob([mergedBytes], { type: "application/pdf" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "COPD-Handout-with-Tiotropium-info.pdf";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
-        }
-      } catch (err) {
-        console.error("Error generating PDF", err);
-        alert("Sorry, something went wrong creating the PDF.");
-      } finally {
-        // restore preview scale + visibility
-        document.documentElement.style.setProperty("--pdf-scale", originalScale);
-        if (wasHidden) pdfContainer.classList.add("handout-hidden");
-      }
+      if (wasHidden) pdfContainer.classList.add("handout-hidden");
     });
 
     // INIT
@@ -1748,7 +1681,7 @@
       "--pdf-scale",
       pdfScaleSelect.value || "1"
     );
-    togglePdfBtn.textContent = "👁️ Show patient PDF";
+    togglePdfBtn.textContent = "👁️ Show patient document";
   </script>
 </body>
 </html>
