@@ -526,20 +526,18 @@
       margin-top: 3px;
     }
 
-    /* ---------- PRINT STYLES (SIMPLER + RELIABLE) ---------- */
+    /* ---------- PRINT STYLES ---------- */
     @media print {
       body {
         background: #ffffff;
       }
 
-      /* Hide UI / controls – only print the handout pages */
       .store-header,
       .headline,
       .config-panel {
         display: none !important;
       }
 
-      /* Always show the PDF/handout when printing */
       #pdfContainer {
         display: block !important;
       }
@@ -709,7 +707,7 @@
       </div>
     </section>
 
-    <!-- PATIENT PDF (2 PAGES; Tiotropium manual added only via merge) -->
+    <!-- PATIENT PDF SECTION -->
     <section id="pdfContainer" class="handout-hidden">
       <div class="handout-wrapper" id="handout">
         <!-- PAGE 1 -->
@@ -1318,7 +1316,6 @@
     }
 
     function setActiveType(newType) {
-      // Show custom input for "other" category
       if (newType === "other") {
         document.getElementById("otherCustomInput").style.display = "block";
         medNameSelect.style.display = "none";
@@ -1638,12 +1635,10 @@
         : "👁️ Hide patient PDF";
     });
 
-    // Download handler (with Tiotropium attachment if used)
+    // Download handler – attach Tiotropium PDFs depending on selection
     printBtn.addEventListener("click", async () => {
-      // Make sure the output text is up-to-date
       renderOrders();
 
-      // Ensure the PDF section is visible so html2pdf can see it
       const wasHidden = pdfContainer.classList.contains("handout-hidden");
       if (wasHidden) pdfContainer.classList.remove("handout-hidden");
 
@@ -1658,31 +1653,24 @@
       };
 
       try {
-        // 1) Build PDF from the handout HTML
         const worker = html2pdf().from(element).set(opt).toPdf();
         const pdf = await worker.get("pdf");
         const pdfArray = pdf.output("arraybuffer");
 
-        // 2) Check if Tiotropium Respimat® was ordered
+        // Check which Tiotropium products were selected
         const hasTiotropiumResp = orders.some(
           (o) => o.type === "daily" && o.name.includes("Tiotropium Respimat")
         );
+        const hasTiotropiumHandi = orders.some(
+          (o) => o.type === "daily" && o.name.includes("Tiotropium HandiHaler")
+        );
 
-        // 3) If no Tiotropium, just download the base handout
-        if (!hasTiotropiumResp) {
+        // If no Tiotropium product, just download base PDF
+        if (!hasTiotropiumResp && !hasTiotropiumHandi) {
           pdf.save("COPD-Handout.pdf");
         } else {
-          // 4) Merge base handout + Tiotropium.pdf using pdf-lib
           const { PDFDocument } = PDFLib;
-
           const basePdfDoc = await PDFDocument.load(pdfArray);
-
-          // Make sure Tiotropium.pdf is in the SAME FOLDER as this HTML
-          const tiotrBytes = await fetch("Tiotropium.pdf").then((r) =>
-            r.arrayBuffer()
-          );
-          const tiotrDoc = await PDFDocument.load(tiotrBytes);
-
           const mergedDoc = await PDFDocument.create();
 
           const basePages = await mergedDoc.copyPages(
@@ -1691,19 +1679,38 @@
           );
           basePages.forEach((p) => mergedDoc.addPage(p));
 
-          const tioPages = await mergedDoc.copyPages(
-            tiotrDoc,
-            tiotrDoc.getPageIndices()
-          );
-          tioPages.forEach((p) => mergedDoc.addPage(p));
+          // Attach Tiotropium Respimat instructions if selected
+          if (hasTiotropiumResp) {
+            const respBytes = await fetch("Tiotropium.pdf").then((r) =>
+              r.arrayBuffer()
+            );
+            const respDoc = await PDFDocument.load(respBytes);
+            const respPages = await mergedDoc.copyPages(
+              respDoc,
+              respDoc.getPageIndices()
+            );
+            respPages.forEach((p) => mergedDoc.addPage(p));
+          }
+
+          // Attach Tiotropium HandiHaler instructions if selected
+          if (hasTiotropiumHandi) {
+            const handBytes = await fetch("handihaler.pdf").then((r) =>
+              r.arrayBuffer()
+            );
+            const handDoc = await PDFDocument.load(handBytes);
+            const handPages = await mergedDoc.copyPages(
+              handDoc,
+              handDoc.getPageIndices()
+            );
+            handPages.forEach((p) => mergedDoc.addPage(p));
+          }
 
           const mergedBytes = await mergedDoc.save();
-
           const blob = new Blob([mergedBytes], { type: "application/pdf" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = "COPD-Handout-with-Tiotropium.pdf";
+          a.download = "COPD-Handout-with-Tiotropium-info.pdf";
           document.body.appendChild(a);
           a.click();
           a.remove();
@@ -1713,7 +1720,6 @@
         console.error("Error generating PDF", err);
         alert("Sorry, something went wrong creating the PDF.");
       } finally {
-        // Put the PDF back to hidden on screen if it was hidden before
         if (wasHidden) pdfContainer.classList.add("handout-hidden");
       }
     });
