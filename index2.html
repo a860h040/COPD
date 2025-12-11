@@ -5,9 +5,6 @@
   <title>COPD Patient Handout – AdventHealth Ottawa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- NEW: html2pdf.js CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
   <style>
     :root {
       --bg: #f5f5f7;
@@ -530,6 +527,7 @@
       display: none; /* only shown when Tiotropium Respimat® is ordered */
     }
 
+    /* show when JS adds .show */
     .tiotr-wrapper.show {
       display: block;
     }
@@ -719,7 +717,7 @@
           <button class="btn-ghost" id="togglePdfBtn">
             👁️ Hide patient PDF
           </button>
-          <span class="preview-note">Use the button to download the patient handout as a PDF.</span>
+          <span class="preview-note">Use the button to download the patient handout as PDF.</span>
           <button class="btn-primary" id="printBtn">
             <span class="btn-icon">📄</span>
             Download PDF
@@ -1021,7 +1019,7 @@
           </p>
         </div>
 
-        <!-- NEW: Embedded Tiotropium.pdf pages (only when selected) -->
+        <!-- NEW: Embedded Tiotropium.pdf pages (only when selected, for on-screen view only) -->
         <div id="tiotropiumPdfWrapper" class="tiotr-wrapper">
           <embed
             src="Tiotropium.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
@@ -1032,6 +1030,16 @@
       </div>
     </section>
   </main>
+
+  <!-- PDF libraries -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"
+    integrity="sha512-MpDFIChbcXl2QgipQrt1VcPHMldRILetapBl5MPCA9Y8r7qvlwx1/Mc9hNTzY+kS5kX6PdoDq41ws1HiVNLdZA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
   <script>
     // ===== MEDICATION DATA =====
@@ -1652,7 +1660,7 @@
       }
     });
 
-    // PDF size control (screen preview only)
+    // PDF size control (visual only)
     pdfScaleSelect.addEventListener("change", () => {
       const val = pdfScaleSelect.value || "1";
       document.documentElement.style.setProperty("--pdf-scale", val);
@@ -1666,36 +1674,96 @@
         : "👁️ Hide patient PDF";
     });
 
-    // NEW: Download PDF handler using html2pdf
-    printBtn.addEventListener("click", () => {
-      // Make sure content is up-to-date
+    // Download handler (with Tiotropium attachment if used)
+    printBtn.addEventListener("click", async () => {
+      // Make sure the output text is up-to-date
       renderOrders();
 
-      // Ensure the PDF container is visible for capture
-      if (pdfContainer.classList.contains("handout-hidden")) {
-        pdfContainer.classList.remove("handout-hidden");
-        togglePdfBtn.textContent = "👁️ Hide patient PDF";
-      }
+      // Ensure the PDF section is visible so html2pdf can see it
+      const wasHidden = pdfContainer.classList.contains("handout-hidden");
+      if (wasHidden) pdfContainer.classList.remove("handout-hidden");
 
       const element = document.getElementById("handout");
 
       const opt = {
-        margin:       0.5,
-        filename:     "COPD_Plan.pdf",
-        image:        { type: "jpeg", quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: "in", format: "letter", orientation: "portrait" }
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: "COPD-Handout.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
       };
 
-      html2pdf().set(opt).from(element).save();
+      try {
+        // 1) Build PDF from the handout HTML
+        const worker = html2pdf().from(element).set(opt).toPdf();
+        const pdf = await worker.get("pdf");
+        const pdfArray = pdf.output("arraybuffer");
+
+        // 2) Check if Tiotropium Respimat® was ordered
+        const hasTiotropiumResp = orders.some(
+          (o) => o.type === "daily" && o.name.includes("Tiotropium Respimat")
+        );
+
+        // 3) If no Tiotropium, just download the base handout
+        if (!hasTiotropiumResp) {
+          pdf.save("COPD-Handout.pdf");
+        } else {
+          // 4) Merge base handout + Tiotropium.pdf using pdf-lib
+          const { PDFDocument } = PDFLib;
+
+          const basePdfDoc = await PDFDocument.load(pdfArray);
+
+          // Make sure Tiotropium.pdf is in the SAME FOLDER as this HTML
+          const tiotrBytes = await fetch("Tiotropium.pdf").then((r) =>
+            r.arrayBuffer()
+          );
+          const tiotrDoc = await PDFDocument.load(tiotrBytes);
+
+          const mergedDoc = await PDFDocument.create();
+
+          const basePages = await mergedDoc.copyPages(
+            basePdfDoc,
+            basePdfDoc.getPageIndices()
+          );
+          basePages.forEach((p) => mergedDoc.addPage(p));
+
+          const tioPages = await mergedDoc.copyPages(
+            tiotrDoc,
+            tiotrDoc.getPageIndices()
+          );
+          tioPages.forEach((p) => mergedDoc.addPage(p));
+
+          const mergedBytes = await mergedDoc.save();
+
+          const blob = new Blob([mergedBytes], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "COPD-Handout-with-Tiotropium.pdf";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        }
+      } catch (err) {
+        console.error("Error generating PDF", err);
+        alert("Sorry, something went wrong creating the PDF.");
+      } finally {
+        // Put the PDF back to hidden on screen if it was hidden before
+        if (wasHidden) pdfContainer.classList.add("handout-hidden");
+      }
     });
 
     // INIT
     setActiveType("daily");
     renderMedOptions();
     renderOrders();
-    document.documentElement.style.setProperty("--pdf-scale", pdfScaleSelect.value || "1");
+    document.documentElement.style.setProperty(
+      "--pdf-scale",
+      pdfScaleSelect.value || "1"
+    );
     togglePdfBtn.textContent = "👁️ Show patient PDF";
   </script>
 </body>
 </html>
+
