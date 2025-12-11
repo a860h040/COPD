@@ -38,6 +38,11 @@
       text-decoration: none;
     }
 
+    /* Make printed page margins consistent */
+    @page {
+      margin: 0.6in;
+    }
+
     /* ---------- HEADER ---------- */
 
     .store-header {
@@ -417,15 +422,14 @@
     .handout-wrapper {
       background: #ffffff;
       color: #000000;
-      padding: 0.6in;             /* page margin for PDF */
-      width: 8.5in;               /* match letter width */
-      max-width: 100%;
+      padding: 0.6in;              /* this becomes the page margin */
+      max-width: 8.5in;
       margin: 0 auto;
       font-size: 11pt;
       border-radius: 18px;
       box-shadow: var(--shadow-soft);
       transform-origin: top left;
-      transform: scale(var(--pdf-scale)); /* ONLY for on-screen preview */
+      transform: scale(var(--pdf-scale)); /* only for on-screen preview */
     }
 
     .handout-hidden .handout-wrapper {
@@ -433,7 +437,13 @@
     }
 
     .handout-page {
-      /* logical page chunks; html2pdf will break naturally */
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: always;         /* each section = one PDF page */
+    }
+
+    .handout-page:last-child {
+      page-break-after: auto;           /* no extra blank page at end */
     }
 
     .handout-header {
@@ -485,6 +495,7 @@
 
     .list li {
       margin-bottom: 2px;
+      page-break-inside: avoid;
     }
 
     .small {
@@ -1640,16 +1651,15 @@
       const wasHidden = pdfContainer.classList.contains("handout-hidden");
       if (wasHidden) pdfContainer.classList.remove("handout-hidden");
 
-      const element = document.getElementById("handout");
-
-      // Force true scale for the actual PDF (prevents words being cut)
-      const prevScale = getComputedStyle(document.documentElement)
-        .getPropertyValue("--pdf-scale")
-        .trim() || "1";
+      // Force true scale for PDF generation (fixes margin drift)
+      const rootStyle = getComputedStyle(document.documentElement);
+      const originalScale = rootStyle.getPropertyValue("--pdf-scale") || "1";
       document.documentElement.style.setProperty("--pdf-scale", "1");
 
+      const element = document.getElementById("handout");
+
       const opt = {
-        margin: 0, // use CSS padding as page margin
+        margin: 0, // let CSS padding control margins
         filename: "COPD-Handout.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
@@ -1659,15 +1669,6 @@
       try {
         const worker = html2pdf().from(element).set(opt).toPdf();
         const pdf = await worker.get("pdf");
-
-        // Force exactly 2 pages for the base handout (removes extra blanks)
-        const totalPages = pdf.internal.getNumberOfPages();
-        if (totalPages > 2) {
-          for (let i = totalPages; i > 2; i--) {
-            pdf.deletePage(i);
-          }
-        }
-
         const pdfArray = pdf.output("arraybuffer");
 
         // Check which Tiotropium products were selected
@@ -1733,8 +1734,8 @@
         console.error("Error generating PDF", err);
         alert("Sorry, something went wrong creating the PDF.");
       } finally {
-        // restore preview scale
-        document.documentElement.style.setProperty("--pdf-scale", prevScale);
+        // restore preview scale + visibility
+        document.documentElement.style.setProperty("--pdf-scale", originalScale);
         if (wasHidden) pdfContainer.classList.add("handout-hidden");
       }
     });
