@@ -1705,6 +1705,7 @@
             handPages.forEach((p) => mergedDoc.addPage(p));
           }
 
+          
           const mergedBytes = await mergedDoc.save();
           const blob = new Blob([mergedBytes], { type: "application/pdf" });
           const url = URL.createObjectURL(blob);
