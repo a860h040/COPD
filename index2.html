@@ -417,14 +417,14 @@
     .handout-wrapper {
       background: #ffffff;
       color: #000000;
-      padding: 24px;
+      padding: 0.6in;              /* this becomes the page margin */
       max-width: 8.5in;
-      margin: 0 auto 30px;
+      margin: 0 auto;              /* no bottom margin = no extra blank page */
       font-size: 11pt;
       border-radius: 18px;
       box-shadow: var(--shadow-soft);
       transform-origin: top left;
-      transform: scale(var(--pdf-scale));
+      transform: scale(var(--pdf-scale)); /* only for on-screen preview */
     }
 
     .handout-hidden .handout-wrapper {
@@ -432,11 +432,13 @@
     }
 
     .handout-page {
-      page-break-inside: auto !important;
-      break-inside: auto !important;
-      page-break-before: auto;
-      page-break-after: auto;
-      margin-bottom: 0;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: always;         /* each section = one PDF page */
+    }
+
+    .handout-page:last-child {
+      page-break-after: auto;           /* no extra blank page at end */
     }
 
     .handout-header {
@@ -488,6 +490,7 @@
 
     .list li {
       margin-bottom: 2px;
+      page-break-inside: avoid;
     }
 
     .small {
@@ -546,8 +549,9 @@
         box-shadow: none;
         border-radius: 0;
         margin: 0;
-        padding: 0.7in;
+        padding: 0.6in;
         width: 100%;
+        transform: scale(1); /* when printing, no extra scaling */
       }
     }
   </style>
@@ -686,9 +690,9 @@
       <!-- ACTIONS -->
       <div class="config-actions">
         <div class="size-control">
-          <span>PDF size:</span>
+          <span>Preview size:</span>
           <select id="pdfScaleSelect">
-            <option value="0.9">Small (fit more)</option>
+            <option value="0.9">Small</option>
             <option value="1" selected>Standard</option>
             <option value="1.1">Large</option>
           </select>
@@ -1368,6 +1372,8 @@
       const groups = {};
       filtered.forEach((m) => {
         if (!groups[m.group]) groups[m.group] = [];
+       
+
         groups[m.group].push(m);
       });
 
